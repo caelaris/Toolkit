@@ -1,0 +1,4 @@
+{
+  "system:check:translations"     : "Caelaris_Command_System_Check_Translation",
+  "config:list"                   : "Caelaris_Command_Config_List"
+}
