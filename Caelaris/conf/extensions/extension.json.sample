@@ -9,7 +9,7 @@
                 "general": {
                     "web": {
                         "unsecure_base_url": 100,
-                        "secure_base_url": "Exceptions for system.xml sort order"
+                        "secure_base_url": "Exceptions for system.xml sort order (eg. general/web/unsecure_base_url should get a sort order of 100)"
                     }
                 }
             }
