@@ -1,8 +1,16 @@
 <?php
 /**
- * @copyright   2015 Robin de Graaf, devvoh webdevelopment
+ * Adapted and modified from uniconv cli class by Robin de Graaf, devvoh webdevelopment
+ * @author Robin de Graaf (hello@devvoh.com)
+ * @see https://github.com/devvoh/uniconv
+ *
+ * @copyright   2015 Tom Stapersma, Caelaris
  * @license     MIT
- * @author      Robin de Graaf (hello@devvoh.com)
+ * @author      Tom Stapersma (info@caelaris.com)
+ */
+
+/**
+ * Class Caelaris_Lib_Cli
  */
 class Caelaris_Lib_Cli {
     static $parameters = array();
@@ -37,6 +45,14 @@ class Caelaris_Lib_Cli {
 
         echo $string . PHP_EOL;
     }
+
+    public static function writeVerbose($message, $type = self::CLI_DEBUG, $indent = 1)
+    {
+        if (Caelaris_Toolkit::isVerboseMode()) {
+            self::write($message, $type, $indent);
+        }
+    }
+
     public static function dump($message) {
         print_r($message);
         echo PHP_EOL;

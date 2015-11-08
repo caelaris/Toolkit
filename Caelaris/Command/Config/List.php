@@ -33,7 +33,7 @@ class Caelaris_Command_Config_List extends Caelaris_Command_Config
     public static function getConfigurations()
     {
         $configurations = array();
-        foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator(TOOLBOX_BASE . DIRECTORY_SEPARATOR .'conf' . DIRECTORY_SEPARATOR . 'extensions')) as $filename)
+        foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator(TOOLKIT_BASE . DIRECTORY_SEPARATOR .'conf' . DIRECTORY_SEPARATOR . 'extensions')) as $filename)
         {
             // filter out "." and ".."
             if ($filename->isDir()) {

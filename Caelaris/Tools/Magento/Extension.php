@@ -91,10 +91,9 @@ class Caelaris_Tools_Magento_Extension extends Caelaris_Tools_Magento
             $config = Caelaris_Toolkit::getConfig();
         }
 
-        if (Caelaris_Toolkit::isVerboseMode()) {
-            Caelaris_Lib_Cli::write('===== Checking system.xml translations =====', Caelaris_Lib_Cli::CLI_DEBUG);
-            Caelaris_Lib_Cli::write('-Loading system.xml', false, 1);
-        }
+        Caelaris_Lib_Cli::writeVerbose('===== Checking system.xml translations =====');
+        Caelaris_Lib_Cli::writeVerbose('-Loading system.xml');
+
         $simpleXml = simplexml_load_file($config->getSystemXmlPath());
 
         if ($simpleXml === false) {
@@ -103,10 +102,8 @@ class Caelaris_Tools_Magento_Extension extends Caelaris_Tools_Magento
 
         $keys = array();
 
+        Caelaris_Lib_Cli::writeVerbose('-Start parsing system.xml');
 
-        if (Caelaris_Toolkit::isVerboseMode()) {
-            Caelaris_Lib_Cli::write('-Start parsing system.xml', false, 1);
-        }
         foreach ($simpleXml->sections->children() as $section) {
             if (!$section->groups) {
                 continue;
@@ -135,9 +132,7 @@ class Caelaris_Tools_Magento_Extension extends Caelaris_Tools_Magento
             }
         }
 
-        if (Caelaris_Toolkit::isVerboseMode()) {
-            Caelaris_Lib_Cli::write('-Finished parsing System.xml', false, 1);
-        }
+        Caelaris_Lib_Cli::writeVerbose('-Finished parsing System.xml');
 
         if (empty($keys)) {
             throw new Exception('ERROR: No Translation keys found in the system.xml of extension: ' . $config->getExtensionName(true));
@@ -148,9 +143,7 @@ class Caelaris_Tools_Magento_Extension extends Caelaris_Tools_Magento
 
         $missing = array();
         foreach ($config->getLocales() as $locale) {
-            if (Caelaris_Toolkit::isVerboseMode()) {
-                Caelaris_Lib_Cli::write('-Start checking locale: ' . $locale, false, 1);
-            }
+            Caelaris_Lib_Cli::writeVerbose('-Start checking locale: ' . $locale);
             $found = array();
             $f = fopen($config->getLocaleDir() . DIRECTORY_SEPARATOR . $locale . DIRECTORY_SEPARATOR . $config->getExtensionName(true) . ".csv", "r");
             while ($row = fgetcsv($f)) {
@@ -163,9 +156,7 @@ class Caelaris_Tools_Magento_Extension extends Caelaris_Tools_Magento
             }
             fclose($f);
             $missing[$locale] = array_diff($keys, $found);
-            if (Caelaris_Toolkit::isVerboseMode()) {
-                Caelaris_Lib_Cli::write('-Finished checking locale: ' . $locale, false, 1);
-            }
+                Caelaris_Lib_Cli::writeVerbose('-Finished checking locale: ' . $locale);
         }
 
         $success = empty($missing);
@@ -180,9 +171,8 @@ class Caelaris_Tools_Magento_Extension extends Caelaris_Tools_Magento
             Caelaris_Lib_Cli::write($config->getExtensionName(true) . ' has no missing translations for system.xml', Caelaris_Lib_Cli::CLI_SUCCESS, 1);
         }
 
-        if (Caelaris_Toolkit::isVerboseMode()) {
-            Caelaris_Lib_Cli::write('===== Finished checking system.xml translations =====', Caelaris_Lib_Cli::CLI_DEBUG);
-        }
+        Caelaris_Lib_Cli::writeVerbose('===== Finished checking system.xml translations =====');
+
         return $success;
     }
 

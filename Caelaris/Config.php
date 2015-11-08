@@ -33,10 +33,10 @@ class Caelaris_Config
      */
     public function __construct($name = null)
     {
-        if (!defined('TOOLBOX_BASE')) {
-            throw new Exception('ERROR: TOOLBOX_BASE not defined');
+        if (!defined('TOOLKIT_BASE')) {
+            throw new Exception('ERROR: TOOLKIT_BASE not defined');
         }
-        $filePath = TOOLBOX_BASE . DIRECTORY_SEPARATOR .'conf' . DIRECTORY_SEPARATOR . 'extensions' . DIRECTORY_SEPARATOR . $name . '.json';
+        $filePath = TOOLKIT_BASE . DIRECTORY_SEPARATOR .'conf' . DIRECTORY_SEPARATOR . 'extensions' . DIRECTORY_SEPARATOR . $name . '.json';
 
         if (!file_exists($filePath)) {
             throw new Exception('ERROR: Configuration file for ' . $name . ' does not exist');
@@ -49,8 +49,8 @@ class Caelaris_Config
         if (isset($configJson['extension'])) {
             $this->setExtensionName($configJson['extension']);
         }
-        if (isset($configJson['codepool'])) {
-            $this->setCodePool($configJson['codepool']);
+        if (isset($configJson['codePool'])) {
+            $this->setCodePool($configJson['codePool']);
         }
         if (isset($configJson['system']['sort']['exceptions'])) {
             $this->setSystemXmlSortExceptions($configJson['system']['sort']['exceptions']);

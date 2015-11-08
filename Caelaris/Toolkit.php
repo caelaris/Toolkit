@@ -16,6 +16,8 @@ class Caelaris_Toolkit
     public static $options;
     public static $arguments;
     public static $mode;
+    const CONF_DIR = 'conf';
+    const CONF_COMMAND_FILENAME = 'commands.json';
 
     /** @var  Caelaris_Config */
     public static $activeConfig;
@@ -25,7 +27,7 @@ class Caelaris_Toolkit
 
     public static function init()
     {
-        define('TOOLBOX_BASE', dirname(__FILE__));
+        define('TOOLKIT_BASE', dirname(__FILE__));
         self::parseOptions();
 
         self::loadCommands();
@@ -33,7 +35,7 @@ class Caelaris_Toolkit
     }
 
     /**
-     * Application entry point
+     * Application entry point, initialize application and execute command
      *
      * @throws Exception
      */
@@ -45,6 +47,7 @@ class Caelaris_Toolkit
             if (!self::$command) {
                 self::manPage();
             }
+
             self::executeCommand();
         } catch (Exception $e) {
             Caelaris_Lib_Cli::write($e->getMessage(), Caelaris_Lib_Cli::CLI_ERROR);
@@ -52,16 +55,18 @@ class Caelaris_Toolkit
     }
 
     /**
-     * Parse all parameters into options, command and arguments
+     * Parse all arguments into command and it's arguments
      */
     protected static function parseArguments()
     {
         $arguments = $_SERVER['argv'];
         foreach ($arguments as $argument) {
+            /** All arguments after the command are added to the argument list  */
             if (self::$command) {
                 self::$arguments[] = $argument;
             }
 
+            /** First recognisable argument is set as command */
             if (isset(self::$commandList[$argument])) {
                 self::$command = $argument;
             }
@@ -70,7 +75,7 @@ class Caelaris_Toolkit
     }
 
     /**
-     *
+     * Parse options and set the application mode
      */
     protected static function parseOptions()
     {
@@ -84,69 +89,108 @@ class Caelaris_Toolkit
         }
     }
 
+    /**
+     * Load all commands from the configuration
+     *
+     * @throws Exception
+     */
     public static function loadCommands()
     {
-        if (!defined('TOOLBOX_BASE')) {
-            throw new Exception('ERROR: TOOLBOX_BASE not defined');
+        if (!defined('TOOLKIT_BASE')) {
+            /** TOOLKIT_BASE needs to be defined to locate configuration */
+            throw new Exception('ERROR: TOOLKIT_BASE not defined');
         }
-        $filePath = TOOLBOX_BASE . DIRECTORY_SEPARATOR .'conf' . DIRECTORY_SEPARATOR . 'commands.json';
+
+        $filePath = TOOLKIT_BASE . DIRECTORY_SEPARATOR . self::CONF_DIR . DIRECTORY_SEPARATOR . self::CONF_COMMAND_FILENAME;
 
         if (!file_exists($filePath)) {
+            /** If there is no command configuration file, the application cannot run */
             throw new Exception('ERROR: cannot load command list');
         }
 
         $commands = json_decode(file_get_contents($filePath), true);
 
         if (empty($commands)) {
+            /** If the command configuration file is empty or not valid JSON, the application cannot run */
             throw new Exception('ERROR: command conf file is not correct json');
         }
 
+        /** Loop through configured commands and check them for validity */
         foreach ($commands as $command => $className) {
-            if (!class_exists($className)) {
-                if (!self::isVerboseMode()) {
-                    Caelaris_Lib_Cli::write('ERROR: class does not exist : ' . $className, Caelaris_Lib_Cli::CLI_DEBUG, 1);
-
-                }
-                continue;
+            if (self::isValidCommandClass($className)) {
+                self::$commandList[$command] = $className;
             }
-
-            $interfaces = class_implements($className);
-
-            if (!in_array('Caelaris_Command_Interface', $interfaces)) {
-                if (!self::isVerboseMode()) {
-                    Caelaris_Lib_Cli::write('ERROR: ' . $className . ' is not a valid command class', Caelaris_Lib_Cli::CLI_DEBUG, 1);
-
-                }
-                continue;
-            }
-
-            self::$commandList[$command] = $className;
         }
 
         if (empty(self::$commandList)) {
+            /** If no valid commands are found, the application cannot run */
             throw new Exception('ERROR: no commands configured');
         }
     }
 
-    public static function getConfig()
+    /**
+     * Check if $className is a valid command class
+     *
+     * @param string $className
+     *
+     * @return bool
+     */
+    public static function isValidCommandClass($className)
     {
-        $configurations = Caelaris_Command_Config_List::getConfigurations();
-        if (!in_array(self::$arguments[0], $configurations)) {
-            throw new Exception('ERROR: No valid configuration argument passed');
+        if (!class_exists($className)) {
+            /** If the class does not exist, it is obviously not valid */
+            Caelaris_Lib_Cli::writeVerbose('ERROR: command class does not exist : ' . $className);
+            return false;
         }
 
+        $interfaces = class_implements($className);
+        if (!in_array('Caelaris_Command_Interface', $interfaces)) {
+            /** If the class does not extend Caelaris_Command_Interface it is not a valid command */
+            Caelaris_Lib_Cli::writeVerbose('ERROR: ' . $className . ' is not a valid command class');
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * If the config is not set yet, try to load it
+     *
+     * @return Caelaris_Config
+     * @throws Exception
+     */
+    public static function getConfig()
+    {
         if (!self::$activeConfig) {
+            /** Get all extension configurations */
+            $configurations = Caelaris_Command_Config_List::getConfigurations();
+            if (!in_array(self::$arguments[0], $configurations)) {
+                /** If the first argument is not a valid extension configuration, error out */
+                throw new Exception('ERROR: No valid configuration argument passed');
+            }
+
+            /** Load configuration object with data from conf file */
             self::$activeConfig = new Caelaris_Config(self::$arguments[0]);
         }
 
         return self::$activeConfig;
     }
 
+    /**
+     * Returns if the application is in help mode
+     *
+     * @return bool
+     */
     public static function isHelpMode()
     {
         return (self::$mode == self::MODE_HELP);
     }
 
+    /**
+     * Returns if the application is in verbose mode
+     *
+     * @return bool
+     */
     public static function isVerboseMode()
     {
         return (self::$mode == self::MODE_VERBOSE);
@@ -170,25 +214,39 @@ class Caelaris_Toolkit
      */
     public static function manPage()
     {
-        Caelaris_Lib_Cli::write('  _____         _   _   _ _   ', Caelaris_Lib_Cli::CLI_INFO);
-        Caelaris_Lib_Cli::write(' |_   _|__  ___| | | |_(_) |_ ', Caelaris_Lib_Cli::CLI_INFO);
-        Caelaris_Lib_Cli::write('   | |/ _ \/ _ \ | | / / |  _|', Caelaris_Lib_Cli::CLI_INFO);
-        Caelaris_Lib_Cli::write('   |_|\___/\___/_| |_\_\_|\__|', Caelaris_Lib_Cli::CLI_INFO);
-        Caelaris_Lib_Cli::write('Toolkit by Caelaris (info@caelaris.com)', Caelaris_Lib_Cli::CLI_SUCCESS);
+        self::writeSignature();
 
-        Caelaris_Lib_Cli::nl();
+        /** Write usage information */
         Caelaris_Lib_Cli::write('Usage:', Caelaris_Lib_Cli::CLI_DEBUG);
         Caelaris_Lib_Cli::write('command [options] [arguments]', false, 1);
         Caelaris_Lib_Cli::write('Options', Caelaris_Lib_Cli::CLI_DEBUG);
         Caelaris_Lib_Cli::write(' --help (-h)', Caelaris_Lib_Cli::CLI_SUCCESS, 1);
         Caelaris_Lib_Cli::write(' --verbose (-v)', Caelaris_Lib_Cli::CLI_SUCCESS, 1);
-        Caelaris_Lib_Cli::write('Available commands:', Caelaris_Lib_Cli::CLI_DEBUG);
-        Caelaris_Lib_Cli::write('help', Caelaris_Lib_Cli::CLI_SUCCESS, 1);
-        Caelaris_Lib_Cli::write('commands', Caelaris_Lib_Cli::CLI_DEBUG);
 
+        /** Write available default commands */
+        Caelaris_Lib_Cli::write('Default commands:', Caelaris_Lib_Cli::CLI_DEBUG);
+        Caelaris_Lib_Cli::write('help', Caelaris_Lib_Cli::CLI_SUCCESS, 1);
+
+        /** Write available custom commands */
+        Caelaris_Lib_Cli::write('Custom commands:', Caelaris_Lib_Cli::CLI_DEBUG);
         foreach (self::$commandList as $command => $class) {
             Caelaris_Lib_Cli::write($command, Caelaris_Lib_Cli::CLI_SUCCESS, 1);
         }
+
+        /** Exit script execution after man page is written out */
         exit;
+    }
+
+    /**
+     * Write the signature for the toolkit
+     */
+    public static function writeSignature()
+    {
+        Caelaris_Lib_Cli::write('  _____         _   _   _ _   ', Caelaris_Lib_Cli::CLI_INFO);
+        Caelaris_Lib_Cli::write(' |_   _|__  ___| | | |_(_) |_ ', Caelaris_Lib_Cli::CLI_INFO);
+        Caelaris_Lib_Cli::write('   | |/ _ \/ _ \ | | / / |  _|', Caelaris_Lib_Cli::CLI_INFO);
+        Caelaris_Lib_Cli::write('   |_|\___/\___/_| |_\_\_|\__|', Caelaris_Lib_Cli::CLI_INFO);
+        Caelaris_Lib_Cli::write('Toolkit by Caelaris (info@caelaris.com)', Caelaris_Lib_Cli::CLI_SUCCESS);
+        Caelaris_Lib_Cli::nl();
     }
 }
