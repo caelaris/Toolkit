@@ -68,7 +68,7 @@ class Caelaris_Autoloader
      */
     public static function loadClass($className)
     {
-        // handle only package classes
+        /** Handle only toolkit classes */
         if(strpos($className, 'Caelaris_') !== 0){
             return;
         }
@@ -78,9 +78,6 @@ class Caelaris_Autoloader
 
         if(file_exists($fileName)){
             require $fileName;
-            return true;
-        } else {
-            throw new Exception('cannot load class: ' . $className);
         }
     }
 }
