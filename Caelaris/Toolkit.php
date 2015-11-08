@@ -17,6 +17,7 @@ class Caelaris_Toolkit
     public static $arguments;
     public static $mode;
     const CONF_DIR = 'conf';
+    const CONF_DIR_EXTENSIONS = 'extensions';
     const CONF_COMMAND_FILENAME = 'commands.json';
 
     /** @var  Caelaris_Config */

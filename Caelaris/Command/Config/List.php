@@ -27,24 +27,44 @@ class Caelaris_Command_Config_List extends Caelaris_Command_Config
     }
 
     /**
+     * Return available configurations
+     *
      * @return array
      * @throws Exception
      */
     public static function getConfigurations()
     {
         $configurations = array();
-        foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator(TOOLKIT_BASE . DIRECTORY_SEPARATOR .'conf' . DIRECTORY_SEPARATOR . 'extensions')) as $filename)
+
+        $path = array(
+            TOOLKIT_BASE,
+            Caelaris_Toolkit::CONF_DIR,
+            Caelaris_Toolkit::CONF_DIR_EXTENSIONS
+        );
+
+        $directoryPath = implode(DIRECTORY_SEPARATOR, $path);
+        $directory = new RecursiveDirectoryIterator($directoryPath);
+        /** @var SplFileInfo $filename */
+        foreach (new RecursiveIteratorIterator($directory) as $filename)
         {
             // filter out "." and ".."
             if ($filename->isDir()) {
                 continue;
             }
 
-            $filename = $filename->__toString();
-            $configurations[] = basename($filename, '.json');
+            /** Only allow json files */
+            if ($filename->getExtension() != 'json') {
+                continue;
+            }
+
+            $configurations[] = $filename->getBasename('.json');
+            /**
+             * @todo add validation to configurations
+             */
         }
 
         if (empty($configurations)) {
+            /** If no configuration files are found, error out */
             throw new Exception('ERROR: No configurations found');
         }
 
