@@ -1,0 +1,18 @@
+{
+    "namespace": "Extension namespace (eg. Mage)",
+    "extension": "Extension name (eg. Sales)",
+    "codePool": "Extension code pool (eg. core)",
+    "baseDir": "Full path to where the extension is installed on local file system, up to but not including the app dir (eg. /var/www/public/htdocs/)",
+    "system": {
+        "sort": {
+            "exceptions": {
+                "general": {
+                    "web": {
+                        "unsecure_base_url": 100,
+                        "secure_base_url": "Exceptions for system.xml sort order"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,2 +1,3 @@
 .idea
-/Caelaris/conf/extensions
+/Caelaris/conf/extensions/*
+!/Caelaris/conf/extensions/extension.json.sample
