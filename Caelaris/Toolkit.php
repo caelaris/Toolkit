@@ -69,7 +69,7 @@ class Toolkit
             $prefix = 'Caelaris\\';
 
             /** Base directory for the namespace prefix */
-            $base_dir = __DIR__ . '/Caelaris/';
+            $base_dir = __DIR__ . '/';
 
             /** Does the class use the namespace prefix? */
             $len = strlen($prefix);

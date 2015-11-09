@@ -123,7 +123,7 @@ class Cli {
         // get user input from stdin
         $line = fgets(STDIN);
         // turn into lowercase and check if dir exists, call ourselves again if neither
-        $value = strtolower(trim($line));
+        $value = trim($line);
         if (is_dir($value)) {
             return $value;
         }
@@ -152,7 +152,7 @@ class Cli {
         // get user input from stdin
         $line = fgets(STDIN);
         // turn into lowercase and check if dir exists, call ourselves again if neither
-        $value = strtolower(trim($line));
+        $value = trim($line);
 
         if (call_user_func($callback, $value)) {
             return $value;
