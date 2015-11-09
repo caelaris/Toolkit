@@ -5,6 +5,7 @@
  * @author      Tom Stapersma (info@caelaris.com)
  */
 
+/** Only register autoloader if there is no autoloader present (non-composer installs) */
 if (!class_exists('Caelaris_Toolkit')) {
     Caelaris_Autoloader::register();
 }

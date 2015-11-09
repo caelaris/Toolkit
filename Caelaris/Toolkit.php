@@ -10,15 +10,25 @@
  */
 class Caelaris_Toolkit
 {
-    protected static $commandList = array();
-
-    public static $command;
-    public static $options;
-    public static $arguments;
-    public static $mode;
+    /** Configuration directories and files */
     const CONF_DIR = 'conf';
     const CONF_DIR_EXTENSIONS = 'extensions';
     const CONF_COMMAND_FILENAME = 'commands.json';
+
+    /** @var array A list of all valid commands configured */
+    protected static $commandList = array();
+
+    /** @var string Current active command */
+    public static $command;
+
+    /** @var  array All options passed to the current command */
+    public static $options;
+
+    /** @var  array All arguments passed to the current command */
+    public static $arguments;
+
+    /** @var  string Application mode */
+    public static $mode;
 
     /** @var  Caelaris_Config */
     public static $activeConfig;
@@ -26,6 +36,11 @@ class Caelaris_Toolkit
     const MODE_VERBOSE = 'verbose';
     const MODE_HELP = 'help';
 
+    /**
+     * Initialize application, define root dir, parse options, arguments and command
+     *
+     * @throws Exception
+     */
     public static function init()
     {
         define('TOOLKIT_BASE', dirname(__FILE__));
@@ -45,6 +60,7 @@ class Caelaris_Toolkit
         try {
             self::init();
 
+            /** If no command is set, echo manPage and stop execution */
             if (!self::$command) {
                 self::manPage();
             }
@@ -77,6 +93,7 @@ class Caelaris_Toolkit
 
     /**
      * Parse options and set the application mode
+     * Currently only --help(-h) and --verbose(-v) are supported
      */
     protected static function parseOptions()
     {

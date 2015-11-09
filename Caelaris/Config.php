@@ -10,6 +10,7 @@
  */
 class Caelaris_Config
 {
+    protected $_configName;
     protected $_namespace;
     protected $_extensionName;
     protected $_codePool;
@@ -33,44 +34,95 @@ class Caelaris_Config
      */
     public function __construct($name = null)
     {
+        if (is_null($name)) {
+            throw new Exception('ERROR: No configuration name given');
+        }
+
+        $this->setConfigName($name)
+            ->initialize()
+            ->checkConfigRequirements()
+            ->setMagentoAutoloader();
+    }
+
+    /**
+     * Initialize configuration from conf file
+     *
+     * @throws Exception
+     *
+     * @return $this
+     */
+    protected function initialize()
+    {
         if (!defined('TOOLKIT_BASE')) {
             throw new Exception('ERROR: TOOLKIT_BASE not defined');
         }
-        $filePath = TOOLKIT_BASE . DIRECTORY_SEPARATOR .'conf' . DIRECTORY_SEPARATOR . 'extensions' . DIRECTORY_SEPARATOR . $name . '.json';
 
+        $name = $this->_configName;
+
+        /** Build the file path to the configuration file */
+        $path = array(
+            TOOLKIT_BASE,
+            Caelaris_Toolkit::CONF_DIR,
+            Caelaris_Toolkit::CONF_DIR_EXTENSIONS,
+            $name . '.json'
+        );
+
+        $filePath = implode(DIRECTORY_SEPARATOR, $path);
         if (!file_exists($filePath)) {
+            /** If the configuration file does not exist, error out */
             throw new Exception('ERROR: Configuration file for ' . $name . ' does not exist');
         }
 
         $configJson = json_decode(file_get_contents($filePath), true);
+
+        /** Set all configuration information if applicable */
         if (isset($configJson['namespace'])) {
             $this->setNamespace($configJson['namespace']);
         }
+
         if (isset($configJson['extension'])) {
             $this->setExtensionName($configJson['extension']);
         }
+
         if (isset($configJson['codePool'])) {
             $this->setCodePool($configJson['codePool']);
         }
+
         if (isset($configJson['system']['sort']['exceptions'])) {
             $this->setSystemXmlSortExceptions($configJson['system']['sort']['exceptions']);
         }
+
+        /** If a base directory has been configured, use that, otherwise ask the user to provide it */
         if (isset($configJson['baseDir']) && is_dir($configJson['baseDir'])) {
             $baseDir = $configJson['baseDir'];
         } else {
             $baseDir = Caelaris_Lib_Cli::whichDir('What is the base directory for ' . $this->getExtensionName() . '?');
-
         }
 
         $this->setBaseDir($baseDir);
-        $this->checkConfigRequirements();
-        $this->setAutoloader();
+
+        return $this;
     }
 
     /**
+     * Set the name of the current configuration
      *
+     * @param $name
+     *
+     * @return $this
      */
-    protected function setAutoloader()
+    public function setConfigName($name)
+    {
+        $this->_configName = $name;
+        return $this;
+    }
+
+    /**
+     * Registers an autoloader to read Magento files
+     *
+     * @return $this
+     */
+    protected function setMagentoAutoloader()
     {
         $base = $this->_baseDir;
         /**
@@ -86,9 +138,15 @@ class Caelaris_Config
         set_include_path($appPath . PATH_SEPARATOR . get_include_path());
 
         Caelaris_Autoloader_Magento::register();
+
+        return $this;
     }
 
     /**
+     * Check if the configuration has loaded all requirements
+     * @todo add user questions if a requirement is missing
+     *
+     * @return $this
      * @throws Exception
      */
     protected function checkConfigRequirements()
@@ -115,10 +173,15 @@ class Caelaris_Config
         }
 
         if (!empty($errors)) {
+            /**
+             * @todo improve multiple error handling (using CLI write and then throwing exception)
+             */
             $exceptionString = 'ERROR: Requirements failed: ';
             $exceptionString .= implode(' & ', $errors);
             throw new Exception($exceptionString);
         }
+
+        return $this;
     }
 
     /**
@@ -149,6 +212,8 @@ class Caelaris_Config
     }
 
     /**
+     * Return the extension's name with an optional parameter to include the namespace too
+     *
      * @param bool $includesNamespace
      *
      * @return string
@@ -164,6 +229,11 @@ class Caelaris_Config
         return $extensionName;
     }
 
+    /**
+     * @param $extensionName
+     *
+     * @return $this
+     */
     public function setExtensionName($extensionName)
     {
         $this->_extensionName = $extensionName;
@@ -265,6 +335,9 @@ class Caelaris_Config
         return implode(DIRECTORY_SEPARATOR, $path);
     }
 
+    /**
+     * @return string
+     */
     public function getLocaleDir()
     {
         $path = array();
@@ -299,36 +372,41 @@ class Caelaris_Config
     }
 
     /**
-     * @return bool
-     */
-    public function hasControllers()
-    {
-        return !empty($this->_controllers);
-    }
-
-    /**
      * Returns all controllers + classnames from
      *
      * @return mixed
      */
     public function getControllers()
     {
+        /** If no controllers are set, get controllers */
         if (empty($this->_controllers)) {
+            /**
+             * @todo add controllers checked class for extensions without controllers
+             */
             $controllerDir = $this->getExtensionPath('controllers');
-            $controllers = array();
-            foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($controllerDir)) as $filename)
+            $this->_controllers = array();
+
+            /** @var SplFileInfo $file */
+            foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($controllerDir)) as $file)
             {
-                // filter out "." and ".."
-                if ($filename->isDir()) {
+                /** Filter out directories */
+                if ($file->isDir()) {
+                    continue;
+                }
+                /**
+                 * @todo add verbose mode support
+                 */
+
+                /** Only allow json files */
+                if ($file->getExtension() != 'php') {
                     continue;
                 }
 
-                $filename = $filename->__toString();
+                $filename = $file->getBaseName();
                 $className = $this->parseControllerClass($filename);
 
-                $controllers[$filename] =  $className;
+                $this->_controllers[$filename] =  $className;
             }
-            $this->_controllers = $controllers;
         }
 
         return $this->_controllers;
@@ -344,12 +422,22 @@ class Caelaris_Config
     protected function parseControllerClass($filename)
     {
         $controllerDir = $this->getExtensionPath('controllers');
+        /** Remove base directory from path */
         $file = str_replace($controllerDir, '', $filename);
+
+        /** Trim starting slash */
         $file = ltrim($file, DIRECTORY_SEPARATOR);
+
+        /** Remove .php file extension */
         $file = str_replace('.php', '', $file);
+
+        /** Get the extension prefix */
         $classPrefix = $this->getExtensionName(true);
+
+        /** Build class name by adding file name to extension prefix */
         $className = $classPrefix . '_' . $file;
 
+        /** Replace directory separators with underscores */
         $className = str_replace(DIRECTORY_SEPARATOR, '_', $className);
 
         return $className;

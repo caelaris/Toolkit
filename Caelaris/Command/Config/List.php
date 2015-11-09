@@ -47,7 +47,7 @@ class Caelaris_Command_Config_List extends Caelaris_Command_Config
         /** @var SplFileInfo $filename */
         foreach (new RecursiveIteratorIterator($directory) as $filename)
         {
-            // filter out "." and ".."
+            /** Filter out directories */
             if ($filename->isDir()) {
                 continue;
             }

@@ -6,6 +6,8 @@
  * @author      Tom Stapersma (info@caelaris.com)
  */
 
+/** Require autoloader */
 require_once('Caelaris/Autoloader.php');
 
+/** Run application */
 Caelaris_Toolkit::run();
