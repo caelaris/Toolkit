@@ -15,8 +15,6 @@ use Caelaris\Toolkit;
 
 /**
  * Class Cli
- *
- * @package Caelaris\Lib
  */
 class Cli {
     static $parameters = array();

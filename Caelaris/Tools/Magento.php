@@ -10,8 +10,6 @@ use Caelaris\Toolkit;
 
 /**
  * Class Magento
- *
- * @package Caelaris\Tools
  */
 class Magento extends Toolkit
 {

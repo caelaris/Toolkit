@@ -10,8 +10,6 @@ use Caelaris\Lib\Cli;
 
 /**
  * Class Command
- *
- * @package Caelaris
  */
 class Command implements CommandInterface
 {

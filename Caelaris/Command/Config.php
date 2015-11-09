@@ -10,8 +10,6 @@ use Caelaris\Command;
 
 /**
  * Class Config
- *
- * @package Caelaris\Command
  */
 class Config extends Command
 {

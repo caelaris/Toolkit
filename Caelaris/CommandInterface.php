@@ -8,8 +8,6 @@ namespace Caelaris;
 
 /**
  * Interface CommandInterface
- *
- * @package Caelaris
  */
 interface CommandInterface
 {

@@ -12,8 +12,6 @@ use Caelaris\Toolkit;
 
 /**
  * Class All
- *
- * @package Caelaris\Command\Config
  */
 class All extends Config
 {

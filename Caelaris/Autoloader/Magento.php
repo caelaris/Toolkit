@@ -8,8 +8,6 @@ namespace Caelaris\Autoloader;
 
 /**
  * Class Magento
- *
- * @package Caelaris\Autoloader
  */
 class Magento
 {

@@ -11,8 +11,6 @@ use Caelaris\Tools\Magento\Extension;
 
 /**
  * Class Translation
- *
- * @package Caelaris\Command\System\Check
  */
 class Translation extends Config
 {

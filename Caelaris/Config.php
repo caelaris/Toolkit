@@ -11,8 +11,6 @@ use Caelaris\Lib\Cli;
 
 /**
  * Class Config
- *
- * @package Caelaris
  */
 class Config
 {

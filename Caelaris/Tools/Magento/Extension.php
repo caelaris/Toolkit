@@ -14,8 +14,6 @@ use Caelaris\Tools\Magento;
 /**
  * Class Extension
  * Tools specific for Magento extensions
- *
- * @package Caelaris\Tools\Magento
  */
 class Extension extends Magento
 {

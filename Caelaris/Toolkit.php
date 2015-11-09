@@ -11,8 +11,6 @@ use Caelaris\Lib\Cli;
 
 /**
  * Class Toolkit
- *
- * @package Caelaris
  */
 class Toolkit
 {
