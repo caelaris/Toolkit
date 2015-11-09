@@ -26,7 +26,13 @@ class Cli {
     const CLI_DEBUG     = 'debug';
     const CLI_INFO      = 'info';
 
-    public static function write($message, $type = false, $indent = 0) {
+    /**
+     * @param      $message
+     * @param bool $type
+     * @param int  $indent
+     */
+    public static function write($message, $type = false, $indent = 0)
+    {
         $string = '';
 
         if ($type == self::CLI_SUCCESS) {
@@ -50,6 +56,11 @@ class Cli {
         echo $string . PHP_EOL;
     }
 
+    /**
+     * @param        $message
+     * @param string $type
+     * @param int    $indent
+     */
     public static function writeVerbose($message, $type = self::CLI_DEBUG, $indent = 1)
     {
         if (Toolkit::isVerboseMode()) {
@@ -57,21 +68,45 @@ class Cli {
         }
     }
 
-    public static function dump($message) {
+    /**
+     * @param $message
+     */
+    public static function dump($message)
+    {
         print_r($message);
         echo PHP_EOL;
     }
-    public static function addLine($message) {
+
+    /**
+     * @param $message
+     */
+    public static function addLine($message)
+    {
         self::$lines[] = $message;
     }
-    public static function writeLines() {
+
+    /**
+     *
+     */
+    public static function writeLines()
+    {
         $output = implode(self::$lines, PHP_EOL);
         self::write($output);
     }
-    public static function nl() {
+
+    /**
+     *
+     */
+    public static function nl()
+    {
         echo PHP_EOL;
     }
-    public static function parseParameters($params) {
+
+    /**
+     * @param $params
+     */
+    public static function parseParameters($params)
+    {
         // Check for parameters given
         for ($i = 1; $i < count($params); $i++) {
             if (substr($params[$i], 0, 1) === '-') {
@@ -86,16 +121,36 @@ class Cli {
             }
         }
     }
-    public static function getParameters() {
+
+    /**
+     * @return array
+     */
+    public static function getParameters()
+    {
         return self::$parameters;
     }
-    public static function getParameter($key) {
+
+    /**
+     * @param $key
+     *
+     * @return null
+     */
+    public static function getParameter($key)
+    {
         if (isset(self::$parameters[$key])) {
             return self::$parameters[$key];
         }
         return null;
     }
-    public static function yesNo($question, $default = true) {
+
+    /**
+     * @param      $question
+     * @param bool $default
+     *
+     * @return bool
+     */
+    public static function yesNo($question, $default = true)
+    {
         // output question and appropriate default value
         echo trim($question) . ($default ? ' [Y/n] ' : ' [y/N] ');
         // get user input from stdin
@@ -115,7 +170,13 @@ class Cli {
         return self::yesNo($question, $default);
     }
 
-    public static function whichDir($question) {
+    /**
+     * @param $question
+     *
+     * @return string
+     */
+    public static function whichDir($question)
+    {
         // output question
         self::write(trim($question), self::CLI_DEBUG);
         // get user input from stdin
@@ -131,7 +192,15 @@ class Cli {
         return self::whichDir($question);
     }
 
-    public static function validatedQuestion($question, $callback, $errorMessage = '') {
+    /**
+     * @param        $question
+     * @param        $callback
+     * @param string $errorMessage
+     *
+     * @return string
+     */
+    public static function validatedQuestion($question, $callback, $errorMessage = '')
+    {
         if (empty($callback) || !(is_string($callback) || is_array($callback))) {
             throw new \InvalidArgumentException('ERROR: No callback function is defined');
         } elseif (is_string($callback) && !function_exists($callback)) {
@@ -161,14 +230,23 @@ class Cli {
         return self::validatedQuestion($question, $callback, $errorMessage );
     }
 
-    public static function progress($message) {
+    /**
+     * @param $message
+     */
+    public static function progress($message)
+    {
         if (self::$lastProgressLength > 0) {
             echo "\e[" . self::$lastProgressLength . "D";
         }
         self::$lastProgressLength = strlen($message);
         echo $message;
     }
-    public static function end() {
+
+    /**
+     *
+     */
+    public static function end()
+    {
         self::writeLines();
         exit;
     }
