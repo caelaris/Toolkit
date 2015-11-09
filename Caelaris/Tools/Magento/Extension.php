@@ -4,33 +4,40 @@
  * @license     MIT
  * @author      Tom Stapersma (info@caelaris.com)
  */
+namespace Caelaris\Tools\Magento;
+
+use Caelaris\Config;
+use Caelaris\Lib\Cli;
+use Caelaris\Toolkit;
+use Caelaris\Tools\Magento;
 
 /**
- * Class Caelaris_Tools_Extension
- *
+ * Class Extension
  * Tools specific for Magento extensions
+ *
+ * @package Caelaris\Tools\Magento
  */
-class Caelaris_Tools_Magento_Extension extends Caelaris_Tools_Magento
+class Extension extends Magento
 {
     /**
      * Resets sort order for a Magento extension's system.xml file
      * @todo implement a 'Check'-method
      * @todo improve feedback
      *
-     * @param Caelaris_Config $config
+     * @param Config $config
      * @param bool                         $return
      * @param array                        $skip
      *
      * @return bool|mixed
-     * @throws Exception
+     * @throws \Exception
      */
-    public static function fixSystemXmlSort(Caelaris_Config $config, $return = true, $skip = array())
+    public static function fixSystemXmlSort(Config $config, $return = true, $skip = array())
     {
         $increment = $config->getSystemXmlSortIncrement();
         $simpleXml = simplexml_load_file($config->getSystemXmlPath());
 
         if ($simpleXml === false) {
-            throw new Exception('ERROR: Failed to load file: ' . $config->getSystemXmlPath());
+            throw new \Exception('ERROR: Failed to load file: ' . $config->getSystemXmlPath());
         }
 
         foreach ($simpleXml->sections->children() as $section) {
@@ -79,30 +86,30 @@ class Caelaris_Tools_Magento_Extension extends Caelaris_Tools_Magento
     }
 
     /**
-     * @param Caelaris_Config $config
+     * @param Config $config
      * @todo improve feedback
      *
      * @return array
-     * @throws Exception
+     * @throws \Exception
      */
-    public static function checkSystemXmlTranslations(Caelaris_Config $config = null)
+    public static function checkSystemXmlTranslations(Config $config = null)
     {
         if (is_null($config)) {
-            $config = Caelaris_Toolkit::getConfig();
+            $config = Toolkit::getConfig();
         }
 
-        Caelaris_Lib_Cli::writeVerbose('===== Checking system.xml translations =====');
-        Caelaris_Lib_Cli::writeVerbose('-Loading system.xml');
+        Cli::writeVerbose('===== Checking system.xml translations =====');
+        Cli::writeVerbose('-Loading system.xml');
 
         $simpleXml = simplexml_load_file($config->getSystemXmlPath());
 
         if ($simpleXml === false) {
-            throw new Exception('ERROR: Failed to load file: ' . $config->getSystemXmlPath());
+            throw new \Exception('ERROR: Failed to load file: ' . $config->getSystemXmlPath());
         }
 
         $keys = array();
 
-        Caelaris_Lib_Cli::writeVerbose('-Start parsing system.xml');
+        Cli::writeVerbose('-Start parsing system.xml');
 
         foreach ($simpleXml->sections->children() as $section) {
             if (!$section->groups) {
@@ -113,8 +120,9 @@ class Caelaris_Tools_Magento_Extension extends Caelaris_Tools_Magento
                 if (!$group->fields) {
                     continue;
                 }
-                /** @var SimpleXmlElement $field */
+                /** @var \SimpleXmlElement $field */
                 foreach ($group->fields->children() as $field) {
+                    /** @var \SimpleXmlElement $translateAttribute */
                     $translateAttribute = $field['translate'];
                     if ($translateAttribute) {
                         $translateString = $translateAttribute->__toString();
@@ -132,10 +140,10 @@ class Caelaris_Tools_Magento_Extension extends Caelaris_Tools_Magento
             }
         }
 
-        Caelaris_Lib_Cli::writeVerbose('-Finished parsing System.xml');
+        Cli::writeVerbose('-Finished parsing System.xml');
 
         if (empty($keys)) {
-            throw new Exception('ERROR: No Translation keys found in the system.xml of extension: ' . $config->getExtensionName(true));
+            throw new \Exception('ERROR: No Translation keys found in the system.xml of extension: ' . $config->getExtensionName(true));
         }
 
         $keys = array_unique($keys);
@@ -143,7 +151,7 @@ class Caelaris_Tools_Magento_Extension extends Caelaris_Tools_Magento
 
         $missing = array();
         foreach ($config->getLocales() as $locale) {
-            Caelaris_Lib_Cli::writeVerbose('-Start checking locale: ' . $locale);
+            Cli::writeVerbose('-Start checking locale: ' . $locale);
             $found = array();
             $f = fopen($config->getLocaleDir() . DIRECTORY_SEPARATOR . $locale . DIRECTORY_SEPARATOR . $config->getExtensionName(true) . ".csv", "r");
             while ($row = fgetcsv($f)) {
@@ -156,39 +164,39 @@ class Caelaris_Tools_Magento_Extension extends Caelaris_Tools_Magento
             }
             fclose($f);
             $missing[$locale] = array_diff($keys, $found);
-                Caelaris_Lib_Cli::writeVerbose('-Finished checking locale: ' . $locale);
+                Cli::writeVerbose('-Finished checking locale: ' . $locale);
         }
 
         $success = empty($missing);
         foreach ($missing as $locale => $keys) {
-            Caelaris_Lib_Cli::write('--------- Missing keys for locale: ' . $locale . ' ---------', Caelaris_Lib_Cli::CLI_DEBUG, 1);
+            Cli::write('--------- Missing keys for locale: ' . $locale . ' ---------', Cli::CLI_DEBUG, 1);
             foreach ($keys as $key) {
-                Caelaris_Lib_Cli::write($key, Caelaris_Lib_Cli::CLI_ERROR, 2);
+                Cli::write($key, Cli::CLI_ERROR, 2);
             }
         }
 
         if ($success) {
-            Caelaris_Lib_Cli::write($config->getExtensionName(true) . ' has no missing translations for system.xml', Caelaris_Lib_Cli::CLI_SUCCESS, 1);
+            Cli::write($config->getExtensionName(true) . ' has no missing translations for system.xml', Cli::CLI_SUCCESS, 1);
         }
 
-        Caelaris_Lib_Cli::writeVerbose('===== Finished checking system.xml translations =====');
+        Cli::writeVerbose('===== Finished checking system.xml translations =====');
 
         return $success;
     }
 
     /**
-     * @param Caelaris_Config $config
+     * @param Config $config
      * @todo improve feedback
      *
      * @return bool
-     * @throws Exception
+     * @throws \Exception
      */
-    public static function checkAdminIsAllowedMethod(Caelaris_Config $config)
+    public static function checkAdminIsAllowedMethod(Config $config)
     {
-        Caelaris_Lib_Cli::write('===== Checking ' . $config->getExtensionName(true) . ' for SUPEE-6285 ====', Caelaris_Lib_Cli::CLI_DEBUG);
+        Cli::write('===== Checking ' . $config->getExtensionName(true) . ' for SUPEE-6285 ====', Cli::CLI_DEBUG);
         $controllers = $config->getControllers();
         if (empty($controllers)) {
-            Caelaris_Lib_Cli::write($config->getExtensionName(true) . ' has no controllers', Caelaris_Lib_Cli::CLI_SUCCESS, 1);
+            Cli::write($config->getExtensionName(true) . ' has no controllers', Cli::CLI_SUCCESS, 1);
             return true;
         }
 
@@ -196,29 +204,29 @@ class Caelaris_Tools_Magento_Extension extends Caelaris_Tools_Magento
         foreach ($controllers as $path => $controllerClass) {
             require $path;
 
-            $reflector = new ReflectionClass($controllerClass);
+            $reflector = new \ReflectionClass($controllerClass);
             if (!$reflector->isSubclassOf('Mage_Adminhtml_Controller_Action')) {
                 continue;
             }
 
             if (!$reflector->hasMethod('_isAllowed')) {
                 $success = false;
-                Caelaris_Lib_Cli::write($controllerClass . ' does not have a custom _isAllowed method', Caelaris_Lib_Cli::CLI_ERROR, 1);
+                Cli::write($controllerClass . ' does not have a custom _isAllowed method', Cli::CLI_ERROR, 1);
                 continue;
             }
 
             if ($reflector->getMethod('_isAllowed')->class == 'Mage_Adminhtml_Controller_Action') {
                 $success = false;
-                Caelaris_Lib_Cli::write($controllerClass . ' does not have a custom _isAllowed method', Caelaris_Lib_Cli::CLI_ERROR, 1);
+                Cli::write($controllerClass . ' does not have a custom _isAllowed method', Cli::CLI_ERROR, 1);
                 continue;
             }
         }
 
         if ($success) {
-            Caelaris_Lib_Cli::write($config->getExtensionName(true) . ' is patched for Magento patch SUPEE-6285', Caelaris_Lib_Cli::CLI_SUCCESS, 1);
+            Cli::write($config->getExtensionName(true) . ' is patched for Magento patch SUPEE-6285', Cli::CLI_SUCCESS, 1);
         }
 
-        Caelaris_Lib_Cli::write('===== Finished checking ' . $config->getExtensionName(true) . ' for SUPEE-6285 ====', Caelaris_Lib_Cli::CLI_DEBUG);
+        Cli::write('===== Finished checking ' . $config->getExtensionName(true) . ' for SUPEE-6285 ====', Cli::CLI_DEBUG);
         return $success;
     }
 }

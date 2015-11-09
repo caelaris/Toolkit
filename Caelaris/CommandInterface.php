@@ -4,11 +4,14 @@
  * @license     MIT
  * @author      Tom Stapersma (info@caelaris.com)
  */
+namespace Caelaris;
 
 /**
- * Interface Caelaris_Command_Interface
+ * Interface CommandInterface
+ *
+ * @package Caelaris
  */
-interface Caelaris_Command_Interface
+interface CommandInterface
 {
      public static function execute();
      public static function help();

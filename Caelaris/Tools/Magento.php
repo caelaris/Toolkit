@@ -4,11 +4,16 @@
  * @license     MIT
  * @author      Tom Stapersma (info@caelaris.com)
  */
+namespace Caelaris\Tools;
+
+use Caelaris\Toolkit;
 
 /**
- * Class Caelaris_Tools_Magento
+ * Class Magento
+ *
+ * @package Caelaris\Tools
  */
-class Caelaris_Tools_Magento extends Caelaris_Toolkit
+class Magento extends Toolkit
 {
 
 }

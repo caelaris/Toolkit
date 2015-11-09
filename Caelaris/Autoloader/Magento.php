@@ -4,11 +4,14 @@
  * @license     MIT
  * @author      Tom Stapersma (info@caelaris.com)
  */
+namespace Caelaris\Autoloader;
 
 /**
- * Class Caelaris_Autoloader_Magento
+ * Class Magento
+ *
+ * @package Caelaris\Autoloader
  */
-class Caelaris_Autoloader_Magento
+class Magento
 {
     const SCOPE_FILE_PREFIX = '__';
 
@@ -36,12 +39,12 @@ class Caelaris_Autoloader_Magento
     /**
      * Singleton pattern implementation
      *
-     * @return Caelaris_Autoloader_Magento
+     * @return Magento
      */
     public static function instance()
     {
         if (!self::$_instance) {
-            self::$_instance = new Caelaris_Autoloader_Magento();
+            self::$_instance = new Magento();
         }
         return self::$_instance;
     }
@@ -113,7 +116,7 @@ class Caelaris_Autoloader_Magento
      * Save information about used classes per scope with class popularity
      * Class_Name:popularity
      *
-     * @return Caelaris_Autoloader_Magento
+     * @return Magento
      */
     protected function _saveCollectedStat()
     {

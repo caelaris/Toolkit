@@ -4,21 +4,27 @@
  * @license     MIT
  * @author      Tom Stapersma (info@caelaris.com)
  */
+namespace Caelaris\Command\System\Check;
+
+use Caelaris\Command\Config;
+use Caelaris\Tools\Magento\Extension;
 
 /**
- * Class Caelaris_Command_System_Check_Translation
+ * Class Translation
+ *
+ * @package Caelaris\Command\System\Check
  */
-class Caelaris_Command_System_Check_Translation extends Caelaris_Command_Config
+class Translation extends Config
 {
     public static $name = 'system:check:translations';
 
     /**
      * @return void
-     * @throws Exception
+     * @throws \Exception
      */
     protected static function executeCommand()
     {
-        Caelaris_Tools_Magento_Extension::checkSystemXmlTranslations();
+        Extension::checkSystemXmlTranslations();
         return;
     }
 }
