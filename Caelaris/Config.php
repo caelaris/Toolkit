@@ -4,11 +4,17 @@
  * @license     MIT
  * @author      Tom Stapersma (info@caelaris.com)
  */
+namespace Caelaris;
+
+use Caelaris\Autoloader\Magento;
+use Caelaris\Lib\Cli;
 
 /**
- * Class Caelaris_Config
+ * Class Config
+ *
+ * @package Caelaris
  */
-class Caelaris_Config
+class Config
 {
     protected $_configName;
     protected $_namespace;
@@ -30,12 +36,12 @@ class Caelaris_Config
     /**
      * @param null $name
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function __construct($name = null)
     {
         if (is_null($name)) {
-            throw new Exception('ERROR: No configuration name given');
+            throw new \Exception('ERROR: No configuration name given');
         }
 
         $this->setConfigName($name)
@@ -47,14 +53,14 @@ class Caelaris_Config
     /**
      * Initialize configuration from conf file
      *
-     * @throws Exception
+     * @throws \Exception
      *
      * @return $this
      */
     protected function initialize()
     {
         if (!defined('TOOLKIT_BASE')) {
-            throw new Exception('ERROR: TOOLKIT_BASE not defined');
+            throw new \Exception('ERROR: TOOLKIT_BASE not defined');
         }
 
         $name = $this->_configName;
@@ -62,15 +68,15 @@ class Caelaris_Config
         /** Build the file path to the configuration file */
         $path = array(
             TOOLKIT_BASE,
-            Caelaris_Toolkit::CONF_DIR,
-            Caelaris_Toolkit::CONF_DIR_EXTENSIONS,
+            Toolkit::CONF_DIR,
+            Toolkit::CONF_DIR_EXTENSIONS,
             $name . '.json'
         );
 
         $filePath = implode(DIRECTORY_SEPARATOR, $path);
         if (!file_exists($filePath)) {
             /** If the configuration file does not exist, error out */
-            throw new Exception('ERROR: Configuration file for ' . $name . ' does not exist');
+            throw new \Exception('ERROR: Configuration file for ' . $name . ' does not exist');
         }
 
         $configJson = json_decode(file_get_contents($filePath), true);
@@ -96,7 +102,7 @@ class Caelaris_Config
         if (isset($configJson['baseDir']) && is_dir($configJson['baseDir'])) {
             $baseDir = $configJson['baseDir'];
         } else {
-            $baseDir = Caelaris_Lib_Cli::whichDir('What is the base directory for ' . $this->getExtensionName() . '?');
+            $baseDir = Cli::whichDir('What is the base directory for ' . $this->getExtensionName() . '?');
         }
 
         $this->setBaseDir($baseDir);
@@ -137,7 +143,7 @@ class Caelaris_Config
         $appPath = implode(PATH_SEPARATOR, $paths);
         set_include_path($appPath . PATH_SEPARATOR . get_include_path());
 
-        Caelaris_Autoloader_Magento::register();
+        Magento::register();
 
         return $this;
     }
@@ -147,7 +153,7 @@ class Caelaris_Config
      * @todo add user questions if a requirement is missing
      *
      * @return $this
-     * @throws Exception
+     * @throws \Exception
      */
     protected function checkConfigRequirements()
     {
@@ -178,7 +184,7 @@ class Caelaris_Config
              */
             $exceptionString = 'ERROR: Requirements failed: ';
             $exceptionString .= implode(' & ', $errors);
-            throw new Exception($exceptionString);
+            throw new \Exception($exceptionString);
         }
 
         return $this;
@@ -386,8 +392,8 @@ class Caelaris_Config
             $controllerDir = $this->getExtensionPath('controllers');
             $this->_controllers = array();
 
-            /** @var SplFileInfo $file */
-            foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($controllerDir)) as $file)
+            /** @var \SplFileInfo $file */
+            foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($controllerDir)) as $file)
             {
                 /** Filter out directories */
                 if ($file->isDir()) {

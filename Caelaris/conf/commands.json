@@ -1,4 +1,4 @@
 {
-  "system:check:translations"     : "Caelaris_Command_System_Check_Translation",
-  "config:list"                   : "Caelaris_Command_Config_List"
+  "system:check:translations"     : "Caelaris\\Command\\System\\Check\\Translation",
+  "config:list"                   : "Caelaris\\Command\\Config\\All"
 }

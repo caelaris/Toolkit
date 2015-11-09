@@ -4,11 +4,16 @@
  * @license     MIT
  * @author      Tom Stapersma (info@caelaris.com)
  */
+namespace Caelaris\Command;
+
+use Caelaris\Command;
 
 /**
- * Class Caelaris_Command_Config
+ * Class Config
+ *
+ * @package Caelaris\Command
  */
-class Caelaris_Command_Config extends Caelaris_Command
+class Config extends Command
 {
 
 }

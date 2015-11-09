@@ -9,10 +9,16 @@
  * @author      Tom Stapersma (info@caelaris.com)
  */
 
+namespace Caelaris\Lib;
+
+use Caelaris\Toolkit;
+
 /**
- * Class Caelaris_Lib_Cli
+ * Class Cli
+ *
+ * @package Caelaris\Lib
  */
-class Caelaris_Lib_Cli {
+class Cli {
     static $parameters = array();
     static $lastProgressLength = 0;
     static $lines = array();
@@ -48,7 +54,7 @@ class Caelaris_Lib_Cli {
 
     public static function writeVerbose($message, $type = self::CLI_DEBUG, $indent = 1)
     {
-        if (Caelaris_Toolkit::isVerboseMode()) {
+        if (Toolkit::isVerboseMode()) {
             self::write($message, $type, $indent);
         }
     }
@@ -113,7 +119,7 @@ class Caelaris_Lib_Cli {
 
     public static function whichDir($question) {
         // output question
-        self::write(trim($question), Caelaris_Lib_Cli::CLI_DEBUG);
+        self::write(trim($question), self::CLI_DEBUG);
         // get user input from stdin
         $line = fgets(STDIN);
         // turn into lowercase and check if dir exists, call ourselves again if neither
@@ -123,26 +129,26 @@ class Caelaris_Lib_Cli {
         }
 
         // If nothing has been returned so far, keep asking
-        self::write($value . ' is not a valid directory', Caelaris_Lib_Cli::CLI_ERROR, 1);
+        self::write($value . ' is not a valid directory', self::CLI_ERROR, 1);
         return self::whichDir($question);
     }
 
     public static function validatedQuestion($question, $callback, $errorMessage = '') {
         if (empty($callback) || !(is_string($callback) || is_array($callback))) {
-            throw new InvalidArgumentException('ERROR: No callback function is defined');
+            throw new \InvalidArgumentException('ERROR: No callback function is defined');
         } elseif (is_string($callback) && !function_exists($callback)) {
-            throw new InvalidArgumentException('ERROR: Function ' . $callback . ' does not exist');
+            throw new \InvalidArgumentException('ERROR: Function ' . $callback . ' does not exist');
         } elseif(is_array($callback) && !method_exists($callback[0], $callback[1])) {
-            throw new InvalidArgumentException('ERROR: Method ' . $callback[1] . ' for class ' . $callback[0] . 'does not exist');
+            throw new \InvalidArgumentException('ERROR: Method ' . $callback[1] . ' for class ' . $callback[0] . 'does not exist');
         } elseif (!is_callable($callback)) {
             if (is_array($callback)) {
                 $callback = var_export($callback, true);
             }
-            throw new InvalidArgumentException('ERROR: method/function ' . $callback . 'is not callable');
+            throw new \InvalidArgumentException('ERROR: method/function ' . $callback . 'is not callable');
         }
 
         // output question
-        self::write(trim($question), Caelaris_Lib_Cli::CLI_DEBUG);
+        self::write(trim($question), self::CLI_DEBUG);
         // get user input from stdin
         $line = fgets(STDIN);
         // turn into lowercase and check if dir exists, call ourselves again if neither
@@ -153,7 +159,7 @@ class Caelaris_Lib_Cli {
         }
 
         // If nothing has been returned so far, keep asking
-        self::write(sprintf($errorMessage, $value), Caelaris_Lib_Cli::CLI_ERROR, 1);
+        self::write(sprintf($errorMessage, $value), self::CLI_ERROR, 1);
         return self::validatedQuestion($question, $callback, $errorMessage );
     }
 

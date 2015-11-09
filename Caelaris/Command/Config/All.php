@@ -4,24 +4,31 @@
  * @license     MIT
  * @author      Tom Stapersma (info@caelaris.com)
  */
+namespace Caelaris\Command\Config;
+
+use Caelaris\Command\Config;
+use Caelaris\Lib\Cli;
+use Caelaris\Toolkit;
 
 /**
- * Class Caelaris_Command_Config_List
+ * Class All
+ *
+ * @package Caelaris\Command\Config
  */
-class Caelaris_Command_Config_List extends Caelaris_Command_Config
+class All extends Config
 {
     public static $name = 'config:list';
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     protected static function executeCommand()
     {
         $configurations = static::getConfigurations();
 
-        Caelaris_Lib_Cli::write('Available configurations', Caelaris_Lib_Cli::CLI_DEBUG);
+        Cli::write('Available configurations', Cli::CLI_DEBUG);
         foreach ($configurations as $configuration) {
-            Caelaris_Lib_Cli::write($configuration, Caelaris_Lib_Cli::CLI_SUCCESS, 1);
+            Cli::write($configuration, Cli::CLI_SUCCESS, 1);
         }
         return;
     }
@@ -30,7 +37,7 @@ class Caelaris_Command_Config_List extends Caelaris_Command_Config
      * Return available configurations
      *
      * @return array
-     * @throws Exception
+     * @throws \Exception
      */
     public static function getConfigurations()
     {
@@ -38,14 +45,14 @@ class Caelaris_Command_Config_List extends Caelaris_Command_Config
 
         $path = array(
             TOOLKIT_BASE,
-            Caelaris_Toolkit::CONF_DIR,
-            Caelaris_Toolkit::CONF_DIR_EXTENSIONS
+            Toolkit::CONF_DIR,
+            Toolkit::CONF_DIR_EXTENSIONS
         );
 
         $directoryPath = implode(DIRECTORY_SEPARATOR, $path);
-        $directory = new RecursiveDirectoryIterator($directoryPath);
-        /** @var SplFileInfo $filename */
-        foreach (new RecursiveIteratorIterator($directory) as $filename)
+        $directory = new \RecursiveDirectoryIterator($directoryPath);
+        /** @var \SplFileInfo $filename */
+        foreach (new \RecursiveIteratorIterator($directory) as $filename)
         {
             /** Filter out directories */
             if ($filename->isDir()) {
@@ -65,7 +72,7 @@ class Caelaris_Command_Config_List extends Caelaris_Command_Config
 
         if (empty($configurations)) {
             /** If no configuration files are found, error out */
-            throw new Exception('ERROR: No configurations found');
+            throw new \Exception('ERROR: No configurations found');
         }
 
         return $configurations;

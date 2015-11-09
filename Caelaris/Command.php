@@ -4,11 +4,16 @@
  * @license     MIT
  * @author      Tom Stapersma (info@caelaris.com)
  */
+namespace Caelaris;
+
+use Caelaris\Lib\Cli;
 
 /**
- * Class Caelaris_Command
+ * Class Command
+ *
+ * @package Caelaris
  */
-class Caelaris_Command implements Caelaris_Command_Interface
+class Command implements CommandInterface
 {
     public static $name;
 
@@ -24,7 +29,7 @@ class Caelaris_Command implements Caelaris_Command_Interface
      */
     public static function execute()
     {
-        if (Caelaris_Toolkit::isHelpMode()) {
+        if (Toolkit::isHelpMode()) {
             static::help();
             return;
         }
@@ -38,6 +43,6 @@ class Caelaris_Command implements Caelaris_Command_Interface
      */
     public static function help()
     {
-        Caelaris_Lib_Cli::write(static::$name . ' help will be written at a later point', Caelaris_Lib_Cli::CLI_ERROR);
+        Cli::write(static::$name . ' help will be written at a later point', Cli::CLI_ERROR);
     }
 }
