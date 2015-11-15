@@ -2,6 +2,11 @@
     "name": "caelaris/toolkit",
     "description": "Caelaris Toolkit for evaluating Magento Extensions",
     "license": "MIT",
+    "homepage": "http://www.caelaris.com",
+    "support": {
+        "issues": "https://github.com/caelaris/Toolkit/issues",
+        "source": "https://github.com/caelaris/Toolkit"
+    },
     "authors": [
         {
             "name": "Tom Stapersma",
@@ -10,7 +15,11 @@
     ],
     "minimum-stability": "dev",
     "require": {
+        "php": ">=5.4.0",
         "caelaris/di_container": "dev-master"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.8.*"
     },
     "repositories": [{
         "type": "vcs",
