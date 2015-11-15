@@ -27,6 +27,7 @@
     }],
     "autoload": {
         "psr-4": {
+            "Toolkit\\": "Toolkit",
             "Caelaris\\": "Caelaris"
         }
     }
