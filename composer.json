@@ -1,0 +1,24 @@
+{
+    "name": "caelaris/toolkit",
+    "description": "Caelaris Toolkit for evaluating Magento Extensions",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tom Stapersma",
+            "email": "info@caelaris.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "caelaris/di_container": "dev-master"
+    },
+    "repositories": [{
+        "type": "vcs",
+        "url": "https://github.com/caelaris/DI-Container"
+    }],
+    "autoload": {
+        "psr-4": {
+            "Caelaris\\": "Caelaris"
+        }
+    }
+}

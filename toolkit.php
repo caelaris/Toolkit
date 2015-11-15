@@ -5,7 +5,7 @@
  * @license     MIT
  * @author      Tom Stapersma (info@caelaris.com)
  */
-require_once('Caelaris/Toolkit.php');
+require_once('vendor/autoload.php');
 
 /** Run application */
 Caelaris\Toolkit::run();
