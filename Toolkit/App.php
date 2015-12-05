@@ -6,61 +6,35 @@
  */
 namespace Toolkit;
 
+use DI\Container;
+
 class App
 {
-    public $mode;
+    /**
+     * @var Container
+     */
+    public $diContainer;
 
-    public $activeCommand;
+    /**
+     * @var \Toolkit\App\Config
+     */
+    public $config;
 
-    public $arguments;
-
-    public $commandList;
-
-    const MODE_VERBOSE = 'verbose';
-    const MODE_HELP = 'help';
-
-    public function __construct(CommandList $commandList)
+    public function __construct(Container $diContainer)
     {
-        $this->commandList = $commandList;
+        $this->diContainer = $diContainer;
     }
 
     public function init()
     {
-        if (!defined('TOOLKIT_BASE_PATH')) {
-            define('TOOLKIT_BASE_PATH', dirname(__FILE__));
-        }
-        $this->parseOptions();
-        $this->parseArguments();
+        $this->config = $this->diContainer->build('Toolkit\App\Config');
     }
 
-    /**
-     * Parse options and set the application mode
-     * Currently only --help(-h) and --verbose(-v) are supported
-     */
-    protected function parseOptions()
+    public function run()
     {
-        $options = getopt('hv', array('help','verbose'));
+        $this->init();
+        $command = $this->config->getCommand();
 
-        if (isset($options['h']) || isset($options['help'])) {
-            $this->mode = self::MODE_HELP;
-        } elseif (isset($options['v']) || isset($options['verbose'])) {
-            $this->mode = self::MODE_VERBOSE;
-        }
-    }
-
-    protected function parseArguments()
-    {
-        $arguments = $_SERVER['argv'];
-        foreach ($arguments as $argument) {
-            /** All arguments after the command are added to the argument list  */
-            if ($this->activeCommand) {
-                $this->arguments[] = $argument;
-            }
-
-            /** First recognisable argument is set as command */
-            if ($this->commandList->isRegisteredCommand($argument)) {
-                $this->activeCommand = $argument;
-            }
-        }
+        $command->execute();
     }
 }

@@ -6,102 +6,97 @@
  */
 namespace Toolkit\Tests;
 
-class AppTest extends ToolkitBaseTest
+class AppTest extends \PHPUnit_Framework_TestCase
 {
-    public $className = 'Toolkit\App';
+    public $class = 'Toolkit\App';
+    public $diContainer = 'DI\Container';
+    public $config = 'Toolkit\App\Config';
+    public $commandInterface = 'Toolkit\CommandInterface';
 
-    public function testToolkitAppExists()
+    public function getNewApp()
     {
-        $classExists = class_exists($this->className);
-        $this->assertTrue($classExists);
-    }
+        /** @var \DI\Container $diContainer */
+        $diContainer = new $this->diContainer;
 
-    public function testConstructorMethodExists()
-    {
-        $methodExists = method_exists($this->className, '__construct');
-        $this->assertTrue($methodExists);
-    }
-
-    public function testMethodInitExists()
-    {
-        $methodExists = method_exists($this->className, 'init');
-        $this->assertTrue($methodExists);
-    }
-
-    public function testMethodParseOptionsExists()
-    {
-        $methodExists = method_exists($this->className, 'parseOptions');
-        $this->assertTrue($methodExists);
-    }
-
-    public function testMethodParseArgumentsExists()
-    {
-        $methodExists = method_exists($this->className, 'parseArguments');
-        $this->assertTrue($methodExists);
-    }
-
-    public function testPropertyCommandListIsCommandListClass()
-    {
         /** @var \Toolkit\App $app */
-        $app = $this->build($this->className);
-        $app->init();
-        $this->assertInstanceOf('\Toolkit\CommandList', $app->commandList);
+        $app = new $this->class($diContainer);
+
+        return $app;
     }
 
-    public function testInitDefinesToolkitPathConstant()
+    public function testAppClassExists()
     {
-        /** @var \Toolkit\App $app */
-        $app = $this->build($this->className);
-        $app->init();
-        $this->assertTrue(defined('TOOLKIT_BASE_PATH'));
+        $this->assertTrue(class_exists($this->class));
     }
 
-    public function testConstructorShouldTakeParameterForCommandList()
+    public function testAppClassConstructorShouldAcceptDIContainer()
     {
-        $reflector = new \ReflectionClass($this->className);
-        $constructor = $reflector->getConstructor();
+        $appReflection = new \ReflectionClass($this->class);
+        $expectedParamClass = $this->diContainer;
 
-        $constructorParams = $constructor->getParameters();
-        $this->assertNotEmpty($constructorParams);
+        $appConstructor = $appReflection->getConstructor();
 
-        /** @var \ReflectionParameter $constructorParam */
-        $paramFound = false;
-        foreach ($constructorParams as $constructorParam) {
-            if ($constructorParam->getName() == 'commandList') {
-                $paramFound = true;
-                $this->assertFalse($constructorParam->isOptional());
-                $this->assertNotNull($constructorParam->getClass());
-                $this->assertEquals('Toolkit\CommandList', $constructorParam->getClass()->getName());
+        $this->assertNotEmpty($appConstructor);
+        $appConstructorParams = $appConstructor->getParameters();
+
+        $this->assertNotEmpty($appConstructorParams);
+
+        $found = false;
+        foreach ($appConstructorParams as $param) {
+            $paramClass = $param->getClass();
+            if ($paramClass && $paramClass->getName() == $expectedParamClass) {
+                $found = true;
+                break;
             }
         }
 
-        $this->assertTrue($paramFound);
+        $this->assertTrue($found);
     }
 
-    public function testParseArgumentsShouldSetActiveCommandBasedOnArgv()
+    public function testAppDiContainerPropertyShouldBeDIContainerClass()
     {
-        $registeredCommand = 'config:list';
-        $_SERVER['argv'][] = $registeredCommand;
-        $app = $this->build($this->className);
-        $app->init();
-
-        $this->assertEquals($registeredCommand, $app->activeCommand);
+        $app = $this->getNewApp();
+        $this->assertInstanceOf($this->diContainer, $app->diContainer);
     }
 
-    public function testParseArgumentsShouldSetArgumentsForCurrentCommandBasedOnArgv()
+    public function testAppClassShouldHaveRunMethod()
     {
-        $registeredCommand = 'config:list';
-        $_SERVER['argv'][] = $registeredCommand;
-        $_SERVER['argv'][] = 'argumentA';
-        $_SERVER['argv'][] = 'argumentB';
+        $this->assertTrue(method_exists($this->class, 'run'));
+    }
 
-        $expected = array(
-            'argumentA',
-            'argumentB'
-        );
-        $app = $this->build($this->className);
+    public function testAppClassShouldHaveInitMethod()
+    {
+        $this->assertTrue(method_exists($this->class, 'init'));
+    }
+
+    public function testInitShouldSetConfigObject()
+    {
+        $configMock = $this->getMock($this->config);
+
+        $diContainerMock = $this->getMock($this->diContainer);
+        $diContainerMock->expects($this->once())->method('build')->with($this->config)->willReturn($configMock);
+        /** @var \Toolkit\App $app */
+        $app = new $this->class($diContainerMock);
+
         $app->init();
 
-        $this->assertEquals($expected, $app->arguments);
+        $this->assertSame($configMock, $app->config);
+    }
+
+    public function testRunShouldCallInitConfigGetCommandCallExecute()
+    {
+        $commandMock = $this->getMock($this->commandInterface);
+        $commandMock->expects($this->once())->method('execute');
+
+        $configMock = $this->getMock($this->config);
+        $configMock->expects($this->once())->method('getCommand')->with()->willReturn($commandMock);
+
+        $diContainerMock = $this->getMock($this->diContainer);
+        $diContainerMock->expects($this->once())->method('build')->with($this->config)->willReturn($configMock);
+        /** @var \Toolkit\App $app */
+        $app = new $this->class($diContainerMock);
+
+        $app->run();
+        $this->assertSame($configMock, $app->config);
     }
 }
