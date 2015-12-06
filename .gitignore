@@ -1,7 +1,0 @@
-.idea
-.DS_Store
-/Caelaris/conf/extensions/*
-!/Caelaris/conf/extensions/extension.json.sample
-
-/vendor/
-composer.lock

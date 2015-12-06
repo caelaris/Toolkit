@@ -71,7 +71,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
     public function testInitShouldSetConfigObject()
     {
-        $configMock = $this->getMock($this->config);
+        $configMock = $this->getMock($this->config, array(), array(), '', false);
 
         $diContainerMock = $this->getMock($this->diContainer);
         $diContainerMock->expects($this->once())->method('build')->with($this->config)->willReturn($configMock);
@@ -88,7 +88,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $commandMock = $this->getMock($this->commandInterface);
         $commandMock->expects($this->once())->method('execute');
 
-        $configMock = $this->getMock($this->config);
+        $configMock = $this->getMock($this->config, array(), array(), '', false);
         $configMock->expects($this->once())->method('getCommand')->with()->willReturn($commandMock);
 
         $diContainerMock = $this->getMock($this->diContainer);
