@@ -42,7 +42,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     {
         $diContainer = $this->getMock($this->diContainer);
 
-        /** @var Toolkit\App\Config $config */
+        /** @var \Toolkit\App\Config $config */
         $config = new $this->class($diContainer, $options);
         $this->assertTrue($config->$modeMethod());
     }
@@ -76,7 +76,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $_SERVER['argv'] = array('./test.php', 'help');
         $diContainer->expects($this->once())->method('build')->with('helpCommand')->willReturn($commandMock);
 
-        /** @var Toolkit\App\Config $config */
+        /** @var \Toolkit\App\Config $config */
         $config = new $this->class($diContainer);
 
         $command = $config->getCommand();
@@ -103,7 +103,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $diContainer = $this->getMock($this->diContainer);
         $diContainer->expects($this->once())->method('register')->with($expectedCommand, $expectedCommandClass);
 
-        /** @var Toolkit\App\Config $config */
+        /** @var \Toolkit\App\Config $config */
         $config = new $this->class($diContainer);
 
         $config->registerCommand($testCommand, $testCommandClass);
@@ -122,7 +122,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $diContainer = $this->getMock($this->diContainer);
         $diContainer->expects($this->once())->method('register')->with($expectedCommand, $expectedCommandClass);
 
-        /** @var Toolkit\App\Config $config */
+        /** @var \Toolkit\App\Config $config */
         $config = new $this->class($diContainer);
 
         $config->registerCommand($testCommand, $expectedCommandClass);
@@ -142,7 +142,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
 
         $diContainer = $this->getMock($this->diContainer);
 
-        /** @var Toolkit\App\Config $config */
+        /** @var \Toolkit\App\Config $config */
         $config = new $this->class($diContainer);
 
         $config->registerCommand($testCommand, $invalidDi);
@@ -179,7 +179,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
             ->with($expectedCommand)
             ->willReturn($expectedDefaultInstance);
 
-        /** @var Toolkit\App\Config $config */
+        /** @var \Toolkit\App\Config $config */
         $config = new $this->class($diContainer);
 
         $config->registerCommand($testCommand, $expectedCommandClass, true);

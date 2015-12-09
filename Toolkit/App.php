@@ -7,25 +7,33 @@
 namespace Toolkit;
 
 use DI\Container;
+use Toolkit\App\Config;
 
 class App
 {
     /**
      * @var Container
      */
-    public $diContainer;
+    protected $diContainer;
 
     /**
-     * @var \Toolkit\App\Config
+     * @var Config
      */
     protected $config;
 
-    public function __construct(Container $diContainer)
+    /**
+     * @param Container $diContainer
+     * @param Config    $config
+     */
+    public function __construct(Container $diContainer, Config $config)
     {
         $this->diContainer = $diContainer;
-        $this->config = $this->diContainer->build('Toolkit\App\Config');
+        $this->config = $config;
     }
 
+    /**
+     * Run the application
+     */
     public function run()
     {
         $command = $this->config->getCommand();
@@ -33,6 +41,11 @@ class App
         $command->execute();
     }
 
+    /**
+     * Gets config object
+     *
+     * @return Config
+     */
     public function getConfig()
     {
         return $this->config;

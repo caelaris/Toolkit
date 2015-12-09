@@ -16,10 +16,11 @@ class AppTest extends \PHPUnit_Framework_TestCase
     public function getNewApp()
     {
         /** @var \DI\Container $diContainer */
-        $diContainer = new $this->diContainer;
+        $diContainer = $this->getMock($this->diContainer);
+        $config = $this->getMock($this->config, array(), array(), '', false);
 
         /** @var \Toolkit\App $app */
-        $app = new $this->class($diContainer);
+        $app = new $this->class($diContainer, $config);
 
         return $app;
     }
@@ -53,12 +54,6 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($found);
     }
 
-    public function testAppDiContainerPropertyShouldBeDIContainerClass()
-    {
-        $app = $this->getNewApp();
-        $this->assertInstanceOf($this->diContainer, $app->diContainer);
-    }
-
     public function testAppClassShouldHaveRunMethod()
     {
         $this->assertTrue(method_exists($this->class, 'run'));
@@ -73,9 +68,8 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $configMock->expects($this->once())->method('getCommand')->with()->willReturn($commandMock);
 
         $diContainerMock = $this->getMock($this->diContainer);
-        $diContainerMock->expects($this->once())->method('build')->with($this->config)->willReturn($configMock);
         /** @var \Toolkit\App $app */
-        $app = new $this->class($diContainerMock);
+        $app = new $this->class($diContainerMock, $configMock);
 
         $app->run();
         $this->assertSame($configMock, $app->getConfig());
@@ -92,13 +86,11 @@ class AppTest extends \PHPUnit_Framework_TestCase
     public function testGetConfigShouldReturnSameConfigObject()
     {
         $configMock = $this->getMock($this->config, array(), array(), '', false);
-
         $diContainerMock = $this->getMock($this->diContainer);
-        $diContainerMock->expects($this->once())->method('build')->with($this->config)->willReturn($configMock);
+
         /** @var \Toolkit\App $app */
-        $app = new $this->class($diContainerMock);
+        $app = new $this->class($diContainerMock, $configMock);
 
         $this->assertSame($configMock, $app->getConfig());
-
     }
 }

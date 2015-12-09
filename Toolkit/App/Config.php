@@ -53,12 +53,14 @@ class Config
         }
 
         /** Set mode depending on options, help mode takes precedence over verbose */
+        if (isset($options['v']) || isset($options['verbose'])) {
+            $_SERVER['argv'] = array_diff($_SERVER['argv'], array('-v', '--verbose'));
+            $this->mode = $this::MODE_VERBOSE;
+        }
+
         if (isset($options['h']) || isset($options['help'])) {
             $_SERVER['argv'] = array_diff($_SERVER['argv'], array('-h', '--help'));
             $this->mode = $this::MODE_HELP;
-        } elseif (isset($options['v']) || isset($options['verbose'])) {
-            $_SERVER['argv'] = array_diff($_SERVER['argv'], array('-v', '--verbose'));
-            $this->mode = $this::MODE_VERBOSE;
         }
 
         return $this;
@@ -85,7 +87,6 @@ class Config
              * @todo throw exception if default command is also not set
              */
         }
-
 
         /** Remove command argument from list, following options are command arguments */
         unset($arguments[key($arguments)]);
