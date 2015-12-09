@@ -18,23 +18,23 @@ class App
     /**
      * @var \Toolkit\App\Config
      */
-    public $config;
+    protected $config;
 
     public function __construct(Container $diContainer)
     {
         $this->diContainer = $diContainer;
-    }
-
-    public function init()
-    {
         $this->config = $this->diContainer->build('Toolkit\App\Config');
     }
 
     public function run()
     {
-        $this->init();
         $command = $this->config->getCommand();
 
         $command->execute();
+    }
+
+    public function getConfig()
+    {
+        return $this->config;
     }
 }

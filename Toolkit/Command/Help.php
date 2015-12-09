@@ -19,6 +19,9 @@ class Help implements CommandInterface
     /** @var  Writer */
     protected $writer;
 
+    /** @var  Array */
+    protected $arguments;
+
     /**
      * @param Config $config
      * @param Writer $writer
@@ -31,10 +34,22 @@ class Help implements CommandInterface
         $this->writer = $writer;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function execute()
     {
         if ($this->config->isModeHelp()) {
             $this->writer->write('toolkit help command test mode');
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setArguments($arguments)
+    {
+        $this->arguments = $arguments;
+        return $this;
     }
 }

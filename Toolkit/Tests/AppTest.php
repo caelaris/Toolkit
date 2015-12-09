@@ -64,26 +64,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(method_exists($this->class, 'run'));
     }
 
-    public function testAppClassShouldHaveInitMethod()
-    {
-        $this->assertTrue(method_exists($this->class, 'init'));
-    }
-
-    public function testInitShouldSetConfigObject()
-    {
-        $configMock = $this->getMock($this->config, array(), array(), '', false);
-
-        $diContainerMock = $this->getMock($this->diContainer);
-        $diContainerMock->expects($this->once())->method('build')->with($this->config)->willReturn($configMock);
-        /** @var \Toolkit\App $app */
-        $app = new $this->class($diContainerMock);
-
-        $app->init();
-
-        $this->assertSame($configMock, $app->config);
-    }
-
-    public function testRunShouldCallInitConfigGetCommandCallExecute()
+    public function testRunShouldCallGetCommandCallExecute()
     {
         $commandMock = $this->getMock($this->commandInterface);
         $commandMock->expects($this->once())->method('execute');
@@ -97,6 +78,27 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $app = new $this->class($diContainerMock);
 
         $app->run();
-        $this->assertSame($configMock, $app->config);
+        $this->assertSame($configMock, $app->getConfig());
+    }
+
+    public function testShouldHaveGetConfigMethod()
+    {
+        $this->assertTrue(method_exists($this->class, 'getConfig'));
+    }
+
+    /**
+     * @depends testShouldHaveGetConfigMethod
+     */
+    public function testGetConfigShouldReturnSameConfigObject()
+    {
+        $configMock = $this->getMock($this->config, array(), array(), '', false);
+
+        $diContainerMock = $this->getMock($this->diContainer);
+        $diContainerMock->expects($this->once())->method('build')->with($this->config)->willReturn($configMock);
+        /** @var \Toolkit\App $app */
+        $app = new $this->class($diContainerMock);
+
+        $this->assertSame($configMock, $app->getConfig());
+
     }
 }
