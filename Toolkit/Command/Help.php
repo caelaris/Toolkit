@@ -40,7 +40,11 @@ class Help implements CommandInterface
     public function execute()
     {
         if ($this->config->isModeHelp()) {
-            $this->writer->write('toolkit help command test mode');
+            $this->writer->write('toolkit help command: help mode');
+        } elseif ($this->config->isModeVerbose()) {
+            $this->writer->write('toolkit help command: verbose mode');
+        } else {
+            $this->writer->write('toolkit help command: normal mode');
         }
     }
 
