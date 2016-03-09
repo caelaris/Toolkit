@@ -160,7 +160,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testRegsiterCommandSetsDefaultCommand()
+    public function testRegisterCommandSetsDefaultCommand()
     {
         $testCommand = 'test';
         $_SERVER['argv'] = array();
@@ -186,5 +186,33 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         $actualDefaultInstance = $config->getCommand();
 
         $this->assertSame($expectedDefaultInstance, $actualDefaultInstance);
+    }
+
+    public function testGetCommandShouldThrowExceptionIfNoCommandIsSet()
+    {
+        $this->setExpectedException('\Exception');
+        $diContainer = $this->getMock($this->diContainer);
+        $_SERVER['argv'] = array();
+
+        /** @var \Toolkit\App\Config $config */
+        $config = new $this->class($diContainer);
+
+        $config->getCommand();
+    }
+
+    public function testIsCommandShouldReturnFalseForNonExistentCommand()
+    {
+        $diContainer = $this->getMock($this->diContainer);
+
+        $command = 'test';
+
+        /** @var \Toolkit\App\Config $config */
+        $config = new $this->class($diContainer);
+        $this->assertFalse($config->isCommand($command));
+    }
+
+    public function testIsCommandShouldReturnTrueForExistingCommand()
+    {
+
     }
 }

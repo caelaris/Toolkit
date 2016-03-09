@@ -12,6 +12,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
     public $diContainer = 'DI\Container';
     public $config = 'Toolkit\App\Config';
     public $commandInterface = 'Toolkit\CommandInterface';
+    public $writer = 'Cli\Writer';
 
     public function getNewApp()
     {
@@ -68,8 +69,9 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $configMock->expects($this->once())->method('getCommand')->with()->willReturn($commandMock);
 
         $diContainerMock = $this->getMock($this->diContainer);
+        $writerMock = $this->getMock($this->writer);
         /** @var \Toolkit\App $app */
-        $app = new $this->class($diContainerMock, $configMock);
+        $app = new $this->class($diContainerMock, $configMock, $writerMock);
 
         $app->run();
         $this->assertSame($configMock, $app->getConfig());
@@ -87,10 +89,32 @@ class AppTest extends \PHPUnit_Framework_TestCase
     {
         $configMock = $this->getMock($this->config, array(), array(), '', false);
         $diContainerMock = $this->getMock($this->diContainer);
+        $writerMock = $this->getMock($this->writer);
 
         /** @var \Toolkit\App $app */
-        $app = new $this->class($diContainerMock, $configMock);
+        $app = new $this->class($diContainerMock, $configMock, $writerMock);
 
         $this->assertSame($configMock, $app->getConfig());
+    }
+
+    public function testAppRunShouldEchoErrorOnException()
+    {
+        $exceptionMessage = 'No command found in CLI arguments';
+        $expectedException = new \Exception($exceptionMessage);
+
+        $configMock = $this->getMock($this->config, array(), array(), '', false);
+        $configMock->expects($this->once())
+            ->method('getCommand')
+            ->withAnyParameters()
+            ->willThrowException($expectedException);
+
+        $diContainerMock = $this->getMock($this->diContainer);
+
+        $writerMock = $this->getMock($this->writer);
+        $writerMock->expects($this->once())->method('write')->with($exceptionMessage);
+
+        /** @var \Toolkit\App $app */
+        $app = new $this->class($diContainerMock, $configMock, $writerMock);
+        $app->run();
     }
 }

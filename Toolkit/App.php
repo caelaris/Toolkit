@@ -6,6 +6,7 @@
  */
 namespace Toolkit;
 
+use Cli\WriterInterface;
 use DI\Container;
 use Toolkit\App\Config;
 
@@ -22,13 +23,23 @@ class App
     protected $config;
 
     /**
-     * @param Container $diContainer
-     * @param Config    $config
+     * @var WriterInterface
      */
-    public function __construct(Container $diContainer, Config $config)
-    {
+    protected $writer;
+
+    /**
+     * @param Container        $diContainer
+     * @param Config           $config
+     * @param WriterInterface  $writer
+     */
+    public function __construct(
+        Container $diContainer,
+        Config $config,
+        WriterInterface $writer
+    ) {
         $this->diContainer = $diContainer;
         $this->config = $config;
+        $this->writer = $writer;
     }
 
     /**
@@ -36,9 +47,13 @@ class App
      */
     public function run()
     {
-        $command = $this->config->getCommand();
-
-        $command->execute();
+        try {
+            $command = $this->getConfig()->getCommand();
+            $command->execute();
+        } catch (\Exception $e) {
+            /** If an exception occurs, write it out to CLI */
+            $this->writer->write($e->getMessage());
+        }
     }
 
     /**

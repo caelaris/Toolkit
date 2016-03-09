@@ -68,6 +68,7 @@ class Config
 
     /**
      * @return \Toolkit\CommandInterface
+     * @throws \Exception
      */
     public function getCommand()
     {
@@ -78,14 +79,27 @@ class Config
         unset($arguments[0]);
 
         /** Get command argument */
-        $commandArgument = current($arguments);
+        $commandArgument = null;
+        foreach ($arguments as $key => $argument) {
+            /** If an argument starts with - it is an option and should be skipped */
+            if (0 === stripos($argument, '-')) {
+                unset($arguments['key']);
+                continue;
+            }
+
+            /** Only register first command found */
+            if (empty($commandArgument)) {
+                $commandArgument = $argument;
+            }
+        }
 
         /** If no command is passed, get default command */
         if (empty($commandArgument)) {
             $commandArgument = $this->defaultCommand;
-            /**
-             * @todo throw exception if default command is also not set
-             */
+        }
+
+        if (empty($commandArgument)) {
+            throw new \Exception('No command found in CLI arguments');
         }
 
         /** Remove command argument from list, following options are command arguments */
@@ -151,5 +165,11 @@ class Config
         $this->diContainer->register($registeredCommand, $registeredDi);
 
         return $this;
+    }
+
+    public function isCommand($command)
+    {
+        $registeredCommand = $command . $this::COMMAND_SUFFIX;
+        return isset($this->diContainer->repository[$registeredCommand]);
     }
 }
